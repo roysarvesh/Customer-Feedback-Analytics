@@ -1,5 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 public_dataset.csv filter=lfs diff=lfs merge=lfs -text
+<<<<<<< HEAD
 reviews_cleaned.csv filter=lfs diff=lfs merge=lfs -text
 feedback_analytics.db filter=lfs diff=lfs merge=lfs -text
+=======
+>>>>>>> 982bb83913cb079f22e91b02295378f5633826ab
