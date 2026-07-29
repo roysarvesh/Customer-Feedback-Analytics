@@ -1,0 +1,77 @@
+{
+  "source_file": "C:\\Users\\dronr\\Documents\\Customer Feedback Analytics Platform\\public_dataset.csv",
+  "initial_rows": 200000,
+  "initial_columns": [
+    "place_name",
+    "place_category",
+    "place_category_types",
+    "place_overall_rating",
+    "place_total_reviews",
+    "review_rating",
+    "review_text",
+    "review_date",
+    "review_text_length",
+    "food_rating",
+    "service_rating",
+    "atmosphere_rating",
+    "visit_details"
+  ],
+  "sample_size": 200000,
+  "column_roles": {
+    "rating": "review_rating",
+    "review_text": "review_text",
+    "business_name": "place_name",
+    "city": null,
+    "category": "place_category",
+    "date": "review_date",
+    "latitude": null,
+    "longitude": null,
+    "business_id": null,
+    "state": null
+  },
+  "step_01_remove_duplicates": {
+    "rows_before": 200000,
+    "rows_after": 199893,
+    "rows_removed": 107
+  },
+  "step_02_clean_ratings": {
+    "rows_before": 199893,
+    "rows_after": 199893,
+    "rows_removed": 0,
+    "rating_range": [
+      1.0,
+      5.0
+    ]
+  },
+  "step_03_remove_blank_reviews": {
+    "rows_before": 199893,
+    "rows_after": 199893,
+    "rows_removed": 0
+  },
+  "step_04_normalize_text": {
+    "column": "review_text",
+    "operations": [
+      "html_strip",
+      "encoding_fix",
+      "whitespace_collapse"
+    ]
+  },
+  "step_05_standardize_cities": {
+    "status": "skipped",
+    "reason": "no city column"
+  },
+  "step_06_parse_dates": {
+    "column": "review_date",
+    "null_dates_after_parse": 199893,
+    "sample_values": []
+  },
+  "step_07_fill_nulls": {
+    "columns_filled": {
+      "review_date": 199893,
+      "visit_details": 109700
+    }
+  },
+  "final_rows": 199893,
+  "total_rows_removed": 107,
+  "retention_pct": 99.95
+}
