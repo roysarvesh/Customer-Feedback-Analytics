@@ -11,9 +11,17 @@ from typing import Dict, List, Any
 # ─────────────────────────────────────────────
 # ROOT & DIRECTORY STRUCTURE
 # ─────────────────────────────────────────────
-ROOT_DIR: Path = Path(__file__).resolve().parent
+import os
+ROOT_DIR: Path = Path(__file__).parent.resolve()
+HOME_DIR: Path = Path(os.path.expanduser("~"))
 
-# Project directories
+# Writable directories (Database, Processed) are placed in the user's home directory 
+# to bypass Windows Controlled Folder Access which blocks Python from writing in Documents.
+APP_DATA_DIR: Path = HOME_DIR / ".customer_feedback_analytics"
+PROCESSED_DIR: Path = APP_DATA_DIR / "processed"
+DATABASE_DIR: Path = APP_DATA_DIR / "database"
+
+# Read-only or project-local directories
 DATA_DIR: Path = ROOT_DIR / "data"
 RAW_DIR: Path = ROOT_DIR
 ASSETS_DIR: Path = ROOT_DIR / "assets"
@@ -22,25 +30,14 @@ SRC_DIR: Path = ROOT_DIR / "src"
 DASHBOARD_DIR: Path = ROOT_DIR / "dashboard"
 NOTEBOOKS_DIR: Path = ROOT_DIR / "notebooks"
 
-# Writable directories inside project
-PROCESSED_DIR: Path = ROOT_DIR / "processed"
-
-# Ensure required directories exist
-for directory in [
-    DATA_DIR,
-    PROCESSED_DIR,
-    ASSETS_DIR,
-    SQL_DIR,
-    SRC_DIR,
-    DASHBOARD_DIR,
-    NOTEBOOKS_DIR,
-]:
-    directory.mkdir(parents=True, exist_ok=True)
+# Ensure critical directories exist at import time
+for _dir in [RAW_DIR, PROCESSED_DIR, DATABASE_DIR, ASSETS_DIR]:
+    _dir.mkdir(parents=True, exist_ok=True)
 
 # ─────────────────────────────────────────────
 # DATABASE
 # ─────────────────────────────────────────────
-DB_PATH: Path = ROOT_DIR / "feedback_analytics.db"
+DB_PATH: Path = DATABASE_DIR / "feedback_analytics.db"
 DB_URL: str = f"sqlite:///{DB_PATH}"
 DB_ECHO: bool = False  # Set True to see SQLAlchemy SQL logs
 

@@ -24,6 +24,85 @@ st.set_page_config(
 
 C = cfg.COLORS
 
+
+# ── Auto-bootstrap the database on first run ──────────────────────────────
+# Locally, you normally run preprocessing.py → database.py → sentiment.py →
+# keyword_extraction.py by hand before launching the app. But on a fresh
+# environment (a new git clone, or a Streamlit Cloud deploy) none of those
+# scripts have ever run and there's no database yet — only app.py gets
+# executed. This function detects that case and runs the whole pipeline
+# in-process, once, so the app is self-sufficient in both settings.
+@st.cache_resource(show_spinner=False)
+def bootstrap_database():
+    from sqlalchemy import text as sql_text
+    from src.database import get_engine, create_schema
+
+    engine = get_engine()
+    create_schema(engine)
+
+    with engine.connect() as conn:
+        try:
+            review_count = conn.execute(sql_text("SELECT COUNT(*) FROM reviews")).scalar()
+            scored_count = conn.execute(
+                sql_text("SELECT COUNT(*) FROM reviews WHERE sentiment_label IS NOT NULL")
+            ).scalar()
+        except Exception:
+            review_count = 0
+            scored_count = 0
+
+    if review_count and scored_count:
+        return engine  # database already built and scored (e.g. from a local pipeline run)
+
+    status = st.empty()
+    status.info("⚙️ First-time setup — building the dataset. This only happens once and may take a minute or two...")
+
+    from src.preprocessing import run_cleaning_pipeline
+    from src.database import load_dataframe_to_db
+    from src.sentiment import score_dataframe, write_sentiment_to_db
+    from src.keyword_extraction import write_keywords_to_db
+    from src.utils import load_csv, resolve_column_roles
+
+    status.info("Step 1/4 — Cleaning raw data...")
+    try:
+        run_cleaning_pipeline(sample_size=cfg.SAMPLE_SIZE)
+    except FileNotFoundError:
+        status.empty()
+        st.error(
+            "**Setup failed: `public_dataset.csv` was not found in the deployed app.**\n\n"
+            "This file is large (~300 MB), which is over GitHub's 100 MB file size limit "
+            "for a normal push. If you deployed this app via a GitHub-connected repo, the "
+            "CSV likely never made it into the repository.\n\n"
+            "**To fix this, either:**\n"
+            "- Use [Git LFS](https://git-lfs.com/) to commit `public_dataset.csv`, or\n"
+            "- Shrink the dataset (e.g. save a smaller sample as `public_dataset.csv`) so it's "
+            "under 100 MB and commit that instead, or\n"
+            "- Upload the CSV to cloud storage and download it at startup instead of "
+            "committing it to git."
+        )
+        st.stop()
+
+    status.info("Step 2/4 — Loading into database...")
+    cleaned_df = load_csv(cfg.CLEANED_CSV_PATH)
+    load_dataframe_to_db(cleaned_df, engine)
+
+    status.info("Step 3/4 — Scoring sentiment...")
+    roles = resolve_column_roles(
+        cleaned_df, cfg.PLATFORM_SOURCES[cfg.ACTIVE_PLATFORM]["expected_columns"]
+    )
+    text_col = roles.get("review_text", "text")
+    sentiment_df = load_csv(cfg.CLEANED_CSV_PATH)
+    sentiment_df = score_dataframe(sentiment_df, text_col)
+    write_sentiment_to_db(sentiment_df, engine)
+
+    status.info("Step 4/4 — Extracting complaint keywords...")
+    write_keywords_to_db(engine)
+
+    status.empty()
+    return engine
+
+
+bootstrap_database()
+
 # ── Global theme ─────────────────────────────────────────────────────────
 st.markdown(f"""
 <style>
