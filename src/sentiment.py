@@ -195,7 +195,9 @@ def write_sentiment_to_db(
     if len(review_ids) != len(df):
         logger.warning(
             "Review count mismatch: DB has %d rows, DataFrame has %d rows. "
-            "Skipping DB sentiment update.",
+            "Skipping DB sentiment update. This usually means the reviews table "
+            "is out of sync with reviews_cleaned.csv — re-run 'python src/database.py' "
+            "(which now clears old reviews before reloading) and then re-run this script.",
             len(review_ids), len(df),
         )
         return

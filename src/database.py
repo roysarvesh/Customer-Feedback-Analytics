@@ -218,6 +218,30 @@ def create_schema(engine=None) -> None:
 # DATA LOADING
 # ─────────────────────────────────────────────
 
+def clear_reviews_and_keywords(engine=None) -> None:
+    """
+    Delete all rows from `reviews` and `keywords` (which references
+    review_id via foreign key) before a fresh data load.
+
+    Cities, Categories, and Businesses are safely upserted elsewhere (looked
+    up by name before insert), but Reviews have no natural dedup key and
+    were previously always freshly bulk-inserted with no cleanup step. That
+    meant every re-run of `python src/database.py` silently *added* another
+    ~200K rows on top of whatever was already there instead of replacing
+    them — after a few runs the reviews table no longer matched the
+    cleaned CSV row-for-row, which made write_sentiment_to_db()'s
+    row-count safety check fail and skip writing sentiment scores entirely.
+
+    Args:
+        engine: SQLAlchemy engine.
+    """
+    eng = engine or get_engine()
+    with eng.begin() as conn:
+        conn.execute(text("DELETE FROM keywords"))
+        conn.execute(text("DELETE FROM reviews"))
+    logger.info("Cleared existing reviews and keywords before reload.")
+
+
 @timer
 def load_dataframe_to_db(
     df: pd.DataFrame,
@@ -231,7 +255,9 @@ def load_dataframe_to_db(
     - Upsert Cities from the city column.
     - Upsert Categories from the category column.
     - Upsert Businesses (deduplicated by name+city).
-    - Bulk-insert Reviews linked to businesses.
+    - Clear existing Reviews/Keywords, then bulk-insert fresh Reviews.
+      (Reviews are always a full reload, not an incremental upsert — see
+      clear_reviews_and_keywords() for why this step is required.)
 
     Args:
         df:     Cleaned DataFrame (output of preprocessing.py).
@@ -243,6 +269,7 @@ def load_dataframe_to_db(
 
     eng = engine or get_engine()
     create_schema(eng)
+    clear_reviews_and_keywords(eng)
 
     platform_cfg = cfg.PLATFORM_SOURCES[cfg.ACTIVE_PLATFORM]["expected_columns"]
     roles = resolve_column_roles(df, platform_cfg)
