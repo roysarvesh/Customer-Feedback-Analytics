@@ -1,36 +1,44 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Multi-Platform Customer Feedback Analytics Platform
 # requirements.txt — Production-pinned dependencies
+#
+# NOTE: Upper bounds are intentional. Production incidents in this app were
+# caused by unbounded ">=" requirements: Streamlit Cloud installed a newer
+# pandas that fully removed a deprecated kwarg (infer_datetime_format), and
+# a newer Streamlit release removed use_container_width — both worked fine
+# locally with a deprecation warning and hard-crashed on a fresh
+# `pip install` on Streamlit Cloud. Pinning a tested range keeps local and
+# cloud environments behaviourally identical.
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Core Framework ──────────────────────────────────────────────────────────
-streamlit>=1.35.0
+streamlit>=1.35.0,<1.40.0
 
 # ── Data Processing ──────────────────────────────────────────────────────────
-pandas>=2.2.0
-numpy>=1.26.0
+pandas>=2.2.0,<2.3.0
+numpy>=1.26.0,<2.1.0
 
 # ── Database ─────────────────────────────────────────────────────────────────
-sqlalchemy>=2.0.0
+sqlalchemy>=2.0.0,<2.1.0
 
 # ── Visualisation ────────────────────────────────────────────────────────────
-plotly>=5.22.0
+plotly>=5.22.0,<5.25.0
 
 # ── NLP / Sentiment ──────────────────────────────────────────────────────────
-nltk>=3.8.1
-vaderSentiment>=3.3.2
-wordcloud>=1.9.3
-Pillow>=10.3.0
+nltk>=3.8.1,<3.10.0
+vaderSentiment>=3.3.2,<3.4.0
+wordcloud>=1.9.3,<1.10.0
+Pillow>=10.3.0,<11.0.0
 
 # ── Text Processing ──────────────────────────────────────────────────────────
-scikit-learn>=1.4.0
+scikit-learn>=1.4.0,<1.6.0
 
 # ── Profiling ────────────────────────────────────────────────────────────────
-tabulate>=0.9.0
+tabulate>=0.9.0,<0.10.0
 
 # ── Utilities ────────────────────────────────────────────────────────────────
-python-dateutil>=2.9.0
-tqdm>=4.66.0
+python-dateutil>=2.9.0,<3.0.0
+tqdm>=4.66.0,<5.0.0
 
 # ── Optional: Geographic Features ────────────────────────────────────────────
 # Uncomment to enable interactive Folium maps and geocoding
@@ -39,4 +47,4 @@ tqdm>=4.66.0
 # streamlit-folium>=0.20.0
 
 # ── Development / Testing ────────────────────────────────────────────────────
-pytest>=8.2.0
+pytest>=8.2.0,<9.0.0

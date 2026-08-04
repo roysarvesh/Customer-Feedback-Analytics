@@ -27,7 +27,7 @@ def render():
             pos = sent_df[sent_df["sentiment_label"] == "Positive"]["count"].sum() / total * 100
             neu = sent_df[sent_df["sentiment_label"] == "Neutral"]["count"].sum() / total * 100
             neg = sent_df[sent_df["sentiment_label"] == "Negative"]["count"].sum() / total * 100
-            st.plotly_chart(sentiment_donut(pos, neu, neg), use_container_width=True)
+            st.plotly_chart(sentiment_donut(pos, neu, neg), width='stretch')
         else:
             st.info("No sentiment data yet. Run src/sentiment.py to score reviews.")
 
@@ -43,7 +43,7 @@ def render():
 
         if not comp_df.empty:
             comp_df["pct"] = comp_df["count"] / comp_df["count"].sum() * 100
-            st.plotly_chart(complaint_category_bar(comp_df), use_container_width=True)
+            st.plotly_chart(complaint_category_bar(comp_df), width='stretch')
         else:
             st.info("No complaint data yet. Run src/keyword_extraction.py after sentiment scoring.")
 

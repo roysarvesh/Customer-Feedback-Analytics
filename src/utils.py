@@ -265,7 +265,13 @@ def safe_datetime(series: pd.Series, errors: str = "coerce") -> pd.Series:
                 return pd.to_datetime(
                     pd.to_numeric(series, errors="coerce"), unit="s", errors=errors
                 )
-    return pd.to_datetime(series, infer_datetime_format=True, errors=errors)
+    # `infer_datetime_format` was deprecated in pandas 2.x and has been
+    # removed entirely in newer pandas releases (this is why the app worked
+    # locally with a warning but crashed with a hard TypeError on Streamlit
+    # Cloud, which installs a newer pandas since requirements.txt had no
+    # upper version bound). Modern pandas infers the format automatically
+    # without needing this argument at all.
+    return pd.to_datetime(series, errors=errors)
 
 
 def memory_usage_mb(df: pd.DataFrame) -> float:

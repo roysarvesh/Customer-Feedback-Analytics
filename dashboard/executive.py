@@ -57,16 +57,16 @@ def render():
     with c1:
         st.subheader("Review Volume by Category")
         if not cat_df.empty:
-            st.plotly_chart(category_volume_bar(cat_df), use_container_width=True)
+            st.plotly_chart(category_volume_bar(cat_df), width='stretch')
         else:
             st.info("No category data available yet. Run the data pipeline first.")
 
     with c2:
         st.subheader("Overall Rating")
-        st.plotly_chart(rating_gauge(kpis.get("avg_rating", 0)), use_container_width=True)
+        st.plotly_chart(rating_gauge(kpis.get("avg_rating", 0)), width='stretch')
         dist_df = get_rating_distribution(engine)
         if not dist_df.empty:
-            st.plotly_chart(rating_distribution_bar(dist_df), use_container_width=True)
+            st.plotly_chart(rating_distribution_bar(dist_df), width='stretch')
 
     st.markdown("---")
 
@@ -113,6 +113,6 @@ def render():
     st.markdown("---")
     st.subheader("Category Overview")
     if not category_perf_df.empty:
-        st.plotly_chart(category_performance_treemap(category_perf_df), use_container_width=True)
+        st.plotly_chart(category_performance_treemap(category_perf_df), width='stretch')
     else:
         st.info("Not enough data to build a category overview yet.")

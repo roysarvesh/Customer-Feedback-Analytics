@@ -49,8 +49,8 @@ def render():
         c3, c4 = st.columns(2)
         with c3:
             st.subheader("Performance Radar")
-            st.plotly_chart(business_radar_comparison(prof1, prof2, biz1, biz2), use_container_width=True)
+            st.plotly_chart(business_radar_comparison(prof1, prof2, biz1, biz2), width='stretch')
 
         with c4:
             st.subheader("Sentiment Breakdown")
-            st.plotly_chart(business_sentiment_comparison_bar(prof1, prof2, biz1, biz2), use_container_width=True)
+            st.plotly_chart(business_sentiment_comparison_bar(prof1, prof2, biz1, biz2), width='stretch')

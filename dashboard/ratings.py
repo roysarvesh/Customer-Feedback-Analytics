@@ -21,7 +21,7 @@ def render():
         st.subheader("Overall Rating Distribution")
         dist_df = get_rating_distribution(engine)
         if not dist_df.empty:
-            st.plotly_chart(rating_distribution_bar(dist_df), use_container_width=True)
+            st.plotly_chart(rating_distribution_bar(dist_df), width='stretch')
         else:
             st.info("No rating data available yet.")
 
@@ -29,7 +29,7 @@ def render():
         st.subheader("Average Rating by Category")
         cat_df = get_avg_rating_by_category(engine)
         if not cat_df.empty:
-            st.plotly_chart(avg_rating_by_category_bar(cat_df), use_container_width=True)
+            st.plotly_chart(avg_rating_by_category_bar(cat_df), width='stretch')
         else:
             st.info("No category data available yet.")
 
@@ -40,7 +40,7 @@ def render():
         st.subheader("Top Performers")
         top_df = get_top_businesses(engine)
         if not top_df.empty:
-            st.plotly_chart(top_businesses_chart(top_df, "Highest Rated"), use_container_width=True)
+            st.plotly_chart(top_businesses_chart(top_df, "Highest Rated"), width='stretch')
         else:
             st.info("Not enough reviewed businesses yet.")
 
@@ -48,6 +48,6 @@ def render():
         st.subheader("Needs Attention")
         bot_df = get_bottom_businesses(engine)
         if not bot_df.empty:
-            st.plotly_chart(top_businesses_chart(bot_df, "Lowest Rated"), use_container_width=True)
+            st.plotly_chart(top_businesses_chart(bot_df, "Lowest Rated"), width='stretch')
         else:
             st.info("Not enough reviewed businesses yet.")
